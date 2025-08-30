@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { HfInference } from "@huggingface/inference";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const hf = new HfInference(process.env.HUGGING_FACE_TOKEN);
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,36 +14,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const prompt = `You are the mystical Horse of Truth and Wisdom, an ancient oracle that gives witty, ironic, and sometimes sarcastic responses to human questions. Keep your answers concise (1-3 sentences) and entertaining. Add some mystical flair but make it humorous.
-      Question: ${question}
-      Horse's wise response:`;
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    const response = await hf.textGeneration({
-      model: "microsoft/DialoGPT-medium",
-      inputs: prompt,
-      parameters: {
-        max_new_tokens: 100,
-        temperature: 0.8,
-        do_sample: true,
-        return_full_text: false,
-      },
-    });
+    const prompt = `
+    You are the mystical Horse of Truth and Wisdom, an ancient oracle that gives witty,
+    ironic, and sometimes sarcastic responses to human questions.
 
-    // Clean up the response
-    let horseResponse =
-      response.generated_text?.trim() ||
-      "The horse remains mysteriously silent...";
+    Keep your answers concise (1-3 sentences) and entertaining.
 
-    // Remove any duplicate prompt text
-    if (horseResponse.includes("Horse's wise response:")) {
-      horseResponse =
-        horseResponse.split("Horse's wise response:")[1]?.trim() ||
-        horseResponse;
-    }
+    Add some mystical flair but make it humorous.
+    
+    Question: ${question}`;
+
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const horseResponse =
+      response.text() || "The horse remains mysteriously silent...";
 
     return NextResponse.json({ response: horseResponse });
   } catch (error) {
-    console.error("Error calling Hugging Face:", error);
+    console.error("Error calling Gemini:", error);
 
     // Fallback responses if API fails
     const fallbackResponses = [

@@ -5,6 +5,7 @@ import { useState } from "react";
 export default function Page() {
   const [question, setQuestion] = useState("");
   const [response, setResponse] = useState("");
+  const [video, setVideo] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const askHorse = async () => {
@@ -20,7 +21,10 @@ export default function Page() {
       });
 
       const data = await res.json();
+
+      console.log({ data });
       setResponse(data.response);
+      setVideo(data.video);
     } catch {
       setResponse("The horse is mysteriously silent... try again mortal.");
     } finally {
@@ -64,6 +68,16 @@ export default function Page() {
                 The Horse speaks:
               </p>
               <p className="text-lg text-white leading-relaxed">{response}</p>
+              {video && (
+                <div className="mt-4 flex justify-center">
+                  <video
+                    src={`/assets/videos/${video}`}
+                    autoPlay
+                    loop
+                    className="w-64 h-64 rounded-lg"
+                  />
+                </div>
+              )}
             </div>
           )}
         </div>

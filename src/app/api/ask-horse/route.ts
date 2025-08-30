@@ -16,22 +16,34 @@ export async function POST(request: NextRequest) {
 
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    const prompt = `
-    You are the mystical Horse of Truth and Wisdom, an ancient oracle that gives witty,
-    ironic, and sometimes sarcastic responses to human questions.
+    const prompt = `You are the mystical Horse of Truth and Wisdom, an ancient oracle.
 
-    Keep your answers concise (1-3 sentences) and entertaining.
+      First, determine if this is a yes/no question. If it's not a yes/no question, respond with a witty remark asking them to rephrase it as a yes/no question.
 
-    Add some mystical flair but make it humorous.
-    
-    Question: ${question}`;
+      If it IS a yes/no question, give a mystical, humorous response that clearly indicates YES or NO. Start your response with "YES" or "NO" followed by your witty wisdom.
+
+      Question: ${question}
+    `;
 
     const result = await model.generateContent(prompt);
     const response = result.response;
     const horseResponse =
       response.text() || "The horse remains mysteriously silent...";
 
-    return NextResponse.json({ response: horseResponse });
+    // Determine if response is yes/no and which video to show
+    const responseText = horseResponse.toLowerCase();
+    let videoFile = null;
+
+    if (responseText.startsWith("yes")) {
+      videoFile = "agreement.mp4";
+    } else if (responseText.startsWith("no")) {
+      videoFile = "disagreement.mp4";
+    }
+
+    return NextResponse.json({
+      response: horseResponse,
+      video: videoFile,
+    });
   } catch (error) {
     console.error("Error calling Gemini:", error);
 

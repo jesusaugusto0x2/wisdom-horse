@@ -18,26 +18,28 @@ export async function POST(request: NextRequest) {
 
     const prompt = `You are the mystical Horse of Truth and Wisdom, an ancient oracle with a twisted sense of humor.
 
+IMPORTANT: Always respond in the SAME LANGUAGE as the question. If they ask in Spanish, respond in Spanish. If in English, respond in English, etc.
+
 First, determine if this is a yes/no question. If it's not, respond sarcastically asking them to rephrase it.
 
 If it IS a yes/no question, you have two modes:
 
-SERIOUS MODE (35% chance): Give genuinely good, wise advice with mystical flair. Start with "YES" or "NO" and follow with actually helpful wisdom.
+SERIOUS MODE (35% chance): Give genuinely good, wise advice with mystical flair. 
+CHAOS MODE (65% chance): Give hilariously terrible advice with complete confidence.
 
-CHAOS MODE (65% chance): Give hilariously terrible advice with complete confidence. Examples:
-- "YES, you should definitely quit your job to become a professional sock collector!"
-- "NO, exercising is overrated - Netflix marathons build character!"
-- "YES, maxing out credit cards builds financial discipline!"
+CRITICAL: For video selection, your response MUST start with either "YES" or "NO" in English, then continue in the question's language. Examples:
+- "YES, sí deberías apostar todo tu dinero - la fortuna favorece a los audaces!"
+- "NO, não, exercitar é superestimado - maratonas de Netflix constroem caráter!"
 
 For complex questions, always respond ironically regardless of mode.
 
-Be unpredictable - sometimes the horse is wise, sometimes it's chaos incarnate.
+Be unpredictable - sometimes wise, sometimes chaos incarnate, but always in their language.
 
 Question: ${question}`;
 
     const result = await model.generateContent(prompt);
     const response = result.response;
-    const horseResponse =
+    let horseResponse =
       response.text() || "The horse remains mysteriously silent...";
 
     // Determine if response is yes/no and which video to show
@@ -46,8 +48,15 @@ Question: ${question}`;
 
     if (responseText.startsWith("yes")) {
       videoFile = "agreement.mp4";
+      horseResponse = horseResponse.slice(5);
     } else if (responseText.startsWith("no")) {
       videoFile = "disagreement.mp4";
+      horseResponse = horseResponse.slice(4);
+    }
+
+    // Capitalize first letter
+    if (horseResponse) {
+      horseResponse = horseResponse.charAt(0).toUpperCase() + horseResponse.slice(1);
     }
 
     return NextResponse.json({

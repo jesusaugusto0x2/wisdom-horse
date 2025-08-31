@@ -41,7 +41,7 @@ export const PageContainer = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
           <h1 className="text-4xl md:text-6xl font-bold mb-4 text-yellow-300">
-            =4 HORSE OF TRUTH AND WISDOM =4
+            🐴 HORSE OF TRUTH AND WISDOM 🐴
           </h1>
           <div className="mb-6 flex justify-center">
             <Image
